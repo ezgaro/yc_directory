@@ -1,27 +1,24 @@
 "use client";
 
-import { useActionState, useState } from "react";
-import { Input } from "./ui/input";
-import { Textarea } from "./ui/textarea";
+import React, { useState, useActionState } from "react";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import MDEditor from "@uiw/react-md-editor";
-import { Button } from "./ui/button";
+import { Button } from "@/components/ui/button";
 import { Send } from "lucide-react";
 import { formSchema } from "@/lib/validation";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
-// import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
+import { createPitch } from "@/lib/actions";
 
-export default function StartupForm() {
+const StartupForm = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [pitch, setPitch] = useState("");
-  const [state, formAction, isPending] = useActionState(handleFormSubmit, {
-    error: "",
-    status: "INITIAL",
-  });
   const { toast } = useToast();
-  // const router = useRouter();
+  const router = useRouter();
 
-  async function handleFormSubmit(prevState: any, formData: FormData) {
+  const handleFormSubmit = async (prevState: any, formData: FormData) => {
     try {
       const formValues = {
         title: formData.get("title") as string,
@@ -33,43 +30,51 @@ export default function StartupForm() {
 
       await formSchema.parseAsync(formValues);
 
-      console.log(formValues);
+      const result = await createPitch(prevState, formData, pitch);
 
-      // const result = await createIdea(prevState, formData, pitch);
-      // console.log(result);
-      // if (result.status === "SUCCESS") {
-      //   toast({
-      //     title: "Success",
-      //     description: "Your statup pitch has been created successfully",
-      //   });
-      //   router.push(`/startup/${result.id}`);
-      // }
-      // return result;
+      if (result.status == "SUCCESS") {
+        toast({
+          title: "Success",
+          description: "Your startup pitch has been created successfully",
+        });
+
+        router.push(`/startup/${result._id}`);
+      }
+
+      return result;
     } catch (error) {
       if (error instanceof z.ZodError) {
-        const fieldErrors = error.flatten().fieldErrors;
-        setErrors(fieldErrors as unknown as Record<string, string>);
+        const fieldErorrs = error.flatten().fieldErrors;
+
+        setErrors(fieldErorrs as unknown as Record<string, string>);
+
         toast({
           title: "Error",
           description: "Please check your inputs and try again",
           variant: "destructive",
         });
-        return { ...prevState, error: "Validation Failed", status: "ERROR" };
+
+        return { ...prevState, error: "Validation failed", status: "ERROR" };
       }
 
       toast({
         title: "Error",
-        description: "An unexpected error has occured",
+        description: "An unexpected error has occurred",
         variant: "destructive",
       });
 
       return {
         ...prevState,
-        error: "An unexpected error has occured",
+        error: "An unexpected error has occurred",
         status: "ERROR",
       };
     }
-  }
+  };
+
+  const [state, formAction, isPending] = useActionState(handleFormSubmit, {
+    error: "",
+    status: "INITIAL",
+  });
 
   return (
     <form action={formAction} className="startup-form">
@@ -110,7 +115,7 @@ export default function StartupForm() {
           name="category"
           className="startup-form_input"
           required
-          placeholder="Startup Category (Tech, Health, Education ...)"
+          placeholder="Startup Category (Tech, Health, Education...)"
         />
         {errors.category && (
           <p className="startup-form_error">{errors.category}</p>
@@ -142,7 +147,7 @@ export default function StartupForm() {
           style={{ borderRadius: 20, overflow: "hidden" }}
           textareaProps={{
             placeholder:
-              "Briefely describe your idea and what problem it solves",
+              "Briefly describe your idea and what problem it solves",
           }}
           previewOptions={{
             disallowedElements: ["style"],
@@ -160,4 +165,6 @@ export default function StartupForm() {
       </Button>
     </form>
   );
-}
+};
+
+export default StartupForm;

@@ -17,6 +17,7 @@ async function Page({ params }: { params: Promise<{ id: string }> }) {
   const post = await client.fetch(STARTUP_BY_ID, { id });
   if (!post) return notFound();
   const parsedContent = md.render(post?.pitch || "");
+
   return (
     <>
       <section className="pink_container !min-h-[230px]">
@@ -37,16 +38,16 @@ async function Page({ params }: { params: Promise<{ id: string }> }) {
               className="flex gap-2 items-center mb-2"
             >
               <Image
-                src={post.author.image}
+                src={post.author?.image}
                 alt="Avatar"
                 width={64}
                 height={64}
                 className="rounded-full drop-shadow-lg"
               />
               <div>
-                <p className="text-20-medium">{post.author.name}</p>
+                <p className="text-20-medium">{post.author?.name}</p>
                 <p className="text-16-medium !text-black-300">
-                  @{post.author.username}
+                  @{post.author?.username}
                 </p>
               </div>
             </Link>

@@ -16,7 +16,7 @@ export const STARTUP_VIEWS_QUERY = defineQuery(`
 `);
 
 export const AUTHOR_BY_GITHUB_ID_QUERY = defineQuery(
-  `*[_type == "author" && id == $id[0]] {
+  `*[_type == "author" && id == $id][0]{
     _id,
     id,
     name,
@@ -24,5 +24,5 @@ export const AUTHOR_BY_GITHUB_ID_QUERY = defineQuery(
     email,
     image,
     bio
-  }`
+}`
 );
