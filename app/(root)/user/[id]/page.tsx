@@ -1,6 +1,5 @@
 import { auth } from "@/auth";
 import { StartupCardSkeleton } from "@/components/StartupCard";
-import { Skeleton } from "@/components/ui/skeleton";
 import UserStartups from "@/components/UserStartups";
 import { client } from "@/sanity/lib/client";
 import { AUTHOR_BY_ID_QUERY } from "@/sanity/lib/queries";
@@ -20,7 +19,6 @@ export default async function Page({
 
   const user = await client.fetch(AUTHOR_BY_ID_QUERY, { id });
   if (!user) return notFound();
-  console.log(user);
 
   return (
     <>
